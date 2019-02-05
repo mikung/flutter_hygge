@@ -28,30 +28,37 @@ class _HomeScreenState extends State<HomeScreen> {
   bool hasImage = false;
   var profile;
   String token;
+  String cid;
+  String ptname;
 
   ApiProvider apiProvider = ApiProvider();
 
   Future<Null> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    token = await prefs.get('token');
-    final response = await apiProvider.getProfile(token);
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
-      print(jsonResponse);
 
-      if (jsonResponse['ok']) {
-        print(jsonResponse['rows']);
-
-        setState(() {
-          profile = jsonResponse['rows'][0];
-        });
-      } else {
-        print('token : $token');
-        print(jsonResponse['error']);
-      }
-    } else {
-      print('Connect Error');
-    }
+    setState(() {
+      token = prefs.get('token');
+      cid = prefs.get('cid');
+      ptname = prefs.get('ptname');
+    });
+//    final response = await apiProvider.getProfile(token);
+//    if (response.statusCode == 200) {
+//      var jsonResponse = json.decode(response.body);
+//      print(jsonResponse);
+//
+//      if (jsonResponse['ok']) {
+//        print(jsonResponse['rows']);
+//
+//        setState(() {
+//          profile = jsonResponse['rows'][0];
+//        });
+//      } else {
+//        print('token : $token');
+//        print(jsonResponse['error']);
+//      }
+//    } else {
+//      print('Connect Error');
+//    }
   }
 
   @override
@@ -139,8 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
 //          ),
 
           UserAccountsDrawerHeader(
-            accountName: Text(profile['cid']),
-            accountEmail: Text(profile['ptname']),
+            accountName: Text(cid),
+            accountEmail: Text(ptname),
             currentAccountPicture: hasImage
                 ? CircleAvatar(
                     backgroundColor: Colors.white70,

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "502333651980",
+    "firebase_url": "https://flutter-notifications-793da.firebaseio.com",
+    "project_id": "flutter-notifications-793da",
+    "storage_bucket": "flutter-notifications-793da.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502333651980:android:fa71c133d250db8c",
+        "android_client_info": {
+          "package_name": "com.hyggemedicalservice.flutterpushnotifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502333651980-acst2rkt8mme8htasmg6obscv3rgmlje.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hyggemedicalservice.flutterpushnotifications",
+            "certificate_hash": "4d6f5bdcec7ac8c64c044770ffba721d047042a7"
+          }
+        },
+        {
+          "client_id": "502333651980-vhmpivrbnn15tkocc021udeaatamfm8p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWRKTHXX99kmBqYuz5UnHW04BmoLvzgDI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502333651980-vhmpivrbnn15tkocc021udeaatamfm8p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

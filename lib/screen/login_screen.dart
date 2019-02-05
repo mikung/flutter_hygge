@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hygge/screen/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hygge/api/api_provider.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,17 +19,67 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  ApiProvider apiProvider = ApiProvider();
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  String _firebaseToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
+      print('on message $message');
+      print('/n a : ' + message['notification']);
+    }, onResume: (Map<String, dynamic> message) {
+      print('on resume $message');
+    }, onLaunch: (Map<String, dynamic> message) {
+      print('on launch $message');
+    });
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, alert: true, badge: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings setting) {
+      print('IOS Setting regised');
+    });
+    _firebaseMessaging.getToken().then((token) {
+      print('token:' + token);
+
+      setState(() {
+        _firebaseToken = token;
+      });
+    });
+//    getToken();
+  }
+
   Future<Null> doLogin() async {
-    final response = await http.post('http://35.247.184.8:4000/login',
-        body: {'username': ctrlUsername.text, 'password': ctrlPassword.text});
+//    final response = await http.post('http://35.247.184.8:4000/login',
+//        body: {'username': ctrlUsername.text, 'password': ctrlPassword.text});
+    final response =
+        await apiProvider.doLogin(ctrlUsername.text, ctrlPassword.text);
     if (response.statusCode == 200) {
       var jsonResponse = json.decode(response.body);
       print(jsonResponse);
       if (jsonResponse['ok']) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('token', jsonResponse['token']);
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        String token = jsonResponse['token'];
+        print(token);
+        final rs = await apiProvider.getProfile(token);
+        print(rs.body);
+        if (rs.statusCode == 200) {
+          var jsonrs = json.decode(rs.body);
+          print(jsonrs['rows'][0]['cid']);
+          String cid = jsonrs['rows'][0]['cid'];
+          String ptname = jsonrs['rows'][0]['ptname'];
+          prefs.setString('cid', cid);
+          prefs.setString('ptname', ptname);
+          DatabaseReference databaseReference = FirebaseDatabase().reference();
+          databaseReference.child('users/$cid/').set(
+              {"displayname": ptname, "notificationTokens": _firebaseToken});
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        } else {
+          print('error');
+        }
       } else {
         print('${jsonResponse['error']}');
         _scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -43,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool isLogged = false;
+
   Future<Null> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = await prefs.get('token');
@@ -53,10 +107,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-//    getToken();
-  }
+//  void initState() {
+//    super.initState();
+////    getToken();
+//  }
 
   checkLogin() {
     print(ctrlUsername.text);
