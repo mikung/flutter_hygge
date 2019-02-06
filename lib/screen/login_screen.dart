@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -7,11 +8,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hygge/api/api_provider.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
+
+final database =
+    FirebaseDatabase.instance.reference().child('users/1345679800000');
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController ctrlUsername = TextEditingController();
@@ -22,6 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
   ApiProvider apiProvider = ApiProvider();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   String _firebaseToken;
+  String ttt;
+  StreamSubscription<Event> _onAdd;
+  StreamSubscription<Event> _onChange;
 
   @override
   void initState() {
@@ -42,12 +50,35 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     _firebaseMessaging.getToken().then((token) {
       print('token:' + token);
+      _onAdd = database.onChildAdded.listen(_onNoteAdded);
+      _onChange = database.onChildChanged.listen(_onNoteUpdated);
 
       setState(() {
         _firebaseToken = token;
       });
     });
 //    getToken();
+  }
+
+  void _onNoteAdded(Event event) {
+//    print(event.snapshot.value['data'].toString());
+    print('aaa');
+    if (event.snapshot.key == 'data') {
+      print(event.snapshot.value);
+      setState(() {
+        ttt = event.snapshot.value;
+      });
+    }
+  }
+
+  void _onNoteUpdated(Event event) {
+    print(event.snapshot.key);
+    if (event.snapshot.key == 'data') {
+      print(event.snapshot.value);
+      setState(() {
+        ttt = event.snapshot.value;
+      });
+    }
   }
 
   Future<Null> doLogin() async {
@@ -196,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               height: 55,
 //                              color: Colors.lightBlueAccent,
                               child: Text(
-                                'ลงชื่อเข้าใช้งาน',
+                                'ลงชื่อเข้าใช้งาน' + ttt,
                                 style: TextStyle(
                                     color: Color(0xFFF05A4D),
                                     fontSize: 30.0,

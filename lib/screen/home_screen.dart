@@ -33,6 +33,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   ApiProvider apiProvider = ApiProvider();
 
+  _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', null);
+    // Update the state of the app
+    exit(0);
+  }
+
   Future<Null> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -225,8 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             trailing: Icon(Icons.exit_to_app),
             onTap: () {
-              // Update the state of the app
-              exit(0);
+              _logout();
               // ...
             },
           ),
